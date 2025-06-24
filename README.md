@@ -9,12 +9,12 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
    ```
    sudo mkdir -p /opt/amd64-bookworm
    sudo debootstrap --arch=amd64 --foreign bookworm /opt/amd64-bookworm https://ftp.debian.org/debian/
-3. Copy QEMU static binary into the refroot, we only copy the x86_64-static as we only plan to emulate amd64 binary instruction set
+3. Copy QEMU static binary into the refroot, we only copy the x86_64 static as we only plan to emulate amd64 binary instruction set
    ```
    sudo cp /usr/bin/qemu-x86_64-static /opt/amd64-bookworm/usr/bin/
 4. We can now create chroot jail and finish bootstrapping. We now have a minimal Debian Bookworm amd64 root filesystem ready.
    ```
-   sudo chroot /opt/amd64-focal /debootstrap/debootstrap --second-stage
+   sudo chroot /opt/amd64-bookworm /debootstrap/debootstrap --second-stage
 5. Next we enter our new chroot using the below command and update the package list and install any missing dependencies we would need, point to the right source list for this distribution. I take an install when needed approach here!
    ```
    sudo chroot /opt/amd64-bookworm
