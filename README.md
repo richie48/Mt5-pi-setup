@@ -39,12 +39,12 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
    # Start the vnc server and set a password when requested
    vncserver :1
    ```
-   we have to install [VNC-viewer](https://www.realvnc.com/en/connect/download/viewer/) on the machine we are SSH-ing from and connect it to our pi. Now to be able to access the pi via a GUI by entering the IP address or hostname of our Raspberry Pi and the display in VNC Viewer "server address search". We would enter the password we had set earlier when creating the VNC server. Now we can see the Pi's desktop in a window on my PC.
+   we have to install [VNC-viewer](https://www.realvnc.com/en/connect/download/viewer/) on the machine we are SSH-ing from and connect it to our pi. Now to be able to access the pi via a GUI by entering the IP address or hostname of our Raspberry Pi and the display in VNC Viewer "server address search". We would enter the password we had set earlier when creating the VNC server. Now we can see the Pi's desktop in a window on my PC (We can chose to skip the entire VNC installation if we can display content from the PI on a monitor with an HDMI, this did not work for me, hence why I went the remote display route)
    ```
    <raspberry_pi_ip_or_hostname>:1
    ```
    we should see a plan grey screen on our VNC viewer, this is the default screen when using VNC viewer before configuration.
-9. Next step is to edit the VNC startup file to launch a desktop environment. We would need to download a light weight desktop like lxde. 
+9. Next step is to edit the VNC startup file to launch a desktop environment. We would need to download a lightweight desktop like LXDE. 
     ```
     sudo apt update
     sudo apt install lxde-core
@@ -64,11 +64,25 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
    ```
    vncserver -kill :1
    vncserver :1
+   # Confirm server is running and the display
+   ps aux | grep vnc
 10. At this point although we can see a desktop display our chroot has no access to the X server. Below command allows any user include users in chroot to be able to connect to the X server
     ```
+    export DISPLAY=:1
     xhost +local:
     ```
-    now from within our chroot jail we `export DISPLAY=:1` to connect to our X server. Now we can successfully run the setup of mt5.
+    Now from within our chroot jail we `export DISPLAY=:1` to connect to our X server. We should also install x11-apps and test our GUI shows up in vnc viewer. For this, we would be running xclock, which should render a GUI in our vnc viewer if the setup is correct 
+    ```
+    # sometimes wine apps need access to /tmp/.X11-unix and .Xauthority.
+    sudo mount --bind /tmp/.X11-unix /opt/amd64-bookworm/tmp/.X11-unix
+    sudo cp /home/youruser/.Xauthority /opt/amd64-bookworm/root/
+    export XAUTHORITY=/root/.Xauthority
+
+    # test installation
+    apt install x11-apps
+    xclock
+    ```
+11. Now we can successfully run the setup of mt5
 
 
    
