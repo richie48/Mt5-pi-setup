@@ -1,7 +1,7 @@
 ## mt5-pi-setup
 MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it to run on a Raspberry Pi some steps were taken as a hack of this process.   
 
-1. The first step is to install the required tools for setting up chroot. `Debootstrap` is a tool used to bootstrap a basic Debian or Ubuntu system into a directory, without needing a Debian installation medium. `qemu-user-static` allows running executables compiled for different CPU architectures on a host system, even if the host and target architectures are different. It does this by translating set of a target architecture to the host architecture providing usermode emulation. `binfmt-support` provides tools for managing and extending the kernel's ability to handle different binary file formats, allowing the system to recognize and execute files based on their format
+1. The first step is to install the required tools for setting up chroot. `Debootstrap` is a tool used to bootstrap a basic Debian or Ubuntu system into a directory, without needing a Debian installation medium. `qemu-user-static` allows running executables compiled for different CPU architectures on a host system, even if the host and target architectures are different. It does this by translating instruction set of a target architecture to the host architecture providing usermode emulation. `binfmt-support` provides tools for managing and extending the kernel's ability to handle different binary file formats, allowing the system to recognize and execute files based on their format
    ```
    sudo apt update
    sudo apt install debootstrap qemu-user-static binfmt-support
