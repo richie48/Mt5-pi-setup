@@ -39,12 +39,38 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
    # Start the vnc server and set a password when requested
    vncserver :1
    ```
-   we have to install [VNC VIEWER](https://www.realvnc.com/en/connect/download/viewer/) on the machine we are SSH-ing from and connect it to our pi. Now to be able to access the pi via a gui by entering the ip address or hostname of our raspbery pi and the display in vnc viewer "server address search". We would enter the password we had set earlier when creating the vnc server. Now we can see the Pi's desktop in a window on my PC.
+   we have to install [VNC-viewer](https://www.realvnc.com/en/connect/download/viewer/) on the machine we are SSH-ing from and connect it to our pi. Now to be able to access the pi via a GUI by entering the IP address or hostname of our Raspberry Pi and the display in VNC Viewer "server address search". We would enter the password we had set earlier when creating the VNC server. Now we can see the Pi's desktop in a window on my PC.
    ```
    <raspberry_pi_ip_or_hostname>:1
    ```
-   we should see a plan grey screen on our vnc viewer, this is the default screen when using vnc viewer before configuration.
+   we should see a plan grey screen on our VNC viewer, this is the default screen when using VNC viewer before configuration.
+9. Next step is to edit the VNC startup file to launch a desktop environment. We would need to download a light weight desktop like lxde. 
+    ```
+    sudo apt update
+    sudo apt install lxde-core
+    ```
+    Then we replace the content in the VNC startup file to the content provided below.
+   ```
+   # Open the start file in an IDE to edit content and after add executable permission
+   vi ~/.vnc/xstartup
+   chmod +x ~/.vnc/xstartup
+   
+   # Update the content of ~/.vnc/xstartup to start desktop environment
+   #!/bin/sh
+   xrdb $HOME/.Xresources
+   startlxde &
+   ```
+   We can restart our vnc server and reconnect to it on vnc viewer now. We should now see a desktop displayed
+   ```
+   vncserver -kill :1
+   vncserver :1
+10. At this point although we can see a desktop display our chroot has no access to the X server. Below command allows any user include users in chroot to be able to connect to the X server
+    ```
+    xhost +local:
+    ```
+    now from within our chroot jail we `export DISPLAY=:1` to connect to our X server. Now we can successfully run the setup of mt5.
 
 
+   
 ## Alternative solution
-* A more stable alternative solution for setting up mt5 for Raspberry Pi is to create a Windows virtual machine on the pi, and then install mt5 on this virtual machine. Then we have to trigger actions on mt5 in the present setup from a task running on the Pi to the task running on the Windows virtual machine by creating an application programming interface(API). Our Windows virtual machine is treated as a separate kernel and therefore, we do not have any direct way to trigger a task from the physical machine kernel to the virtual machine kernel. To do this, we would need an operating system emulator like qemu, a VM manager like virt-manager etc. We would also need to download a Windows ISO, which we would install into a setup and booted Windows VM created by qemu in this case. Although more stable this approach required more effort than the present setup, since mt5 usage is light we don't expect to run into bottlenecks with the picked setup.
+* A more stable alternative solution for setting up mt5 for Raspberry Pi is to create a Windows virtual machine on the pi, and then install mt5 on this virtual machine. Then we have to trigger actions on mt5 in the present setup from a task running on the Pi to the task running on the Windows virtual machine by creating an application programming interface(API). Our Windows virtual machine is treated as a separate kernel, and therefore, we do not have any direct way to trigger a task from the physical machine kernel to the virtual machine kernel. To do this, we would need an operating system emulator like qemu, a VM manager like virt-manager etc. We would also need to download a Windows ISO, which we would install into a setup and booted Windows VM created by qemu in this case. Although more stable this approach required more effort than the present setup, since mt5 usage is light, we don't expect to run into bottlenecks with the picked setup.
