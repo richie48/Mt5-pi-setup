@@ -5,7 +5,7 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
    ```
    sudo apt update
    sudo apt install debootstrap qemu-user-static binfmt-support
-2. Next, we create a root for amd64, which is a "workable" architecture for mt5 on linus. For this, I used the command below to install a minimalist bootstrap of Debian Bookworm operating system for amd64, setting /opt/amd64-bookworm as the directory.
+2. Next, we create a root for amd64, which is a "workable" architecture for mt5 on linux. For this, I used the command below to install a minimalist bootstrap of Debian Bookworm operating system for amd64, setting /opt/amd64-bookworm as the directory.
    ```
    sudo mkdir -p /opt/amd64-bookworm
    sudo debootstrap --arch=amd64 --foreign bookworm /opt/amd64-bookworm https://ftp.debian.org/debian/
