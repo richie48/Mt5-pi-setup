@@ -15,8 +15,21 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
 4. We can now create chroot jail and finish bootstrapping. We now have a minimal Debian Bookworm amd64 root filesystem ready.
    ```
    sudo chroot /opt/amd64-focal /debootstrap/debootstrap --second-stage
-5. Next we enter our new chroot using the below command and update the package list and install any missing dependencies we would need. I take an install when needed approach here!
+5. Next we enter our new chroot using the below command and update the package list and install any missing dependencies we would need, point to the right source list for this distribution. I take an install when needed approach here!
    ```
    sudo chroot /opt/amd64-bookworm
+
+   echo "deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware" > /etc/apt/sources.list
+   echo "deb http://security.debian.org/debian-security bookworm-security main contrib non-free non-free-firmware" >> /etc/apt/sources.list
+   echo "deb http://deb.debian.org/debian bookworm-updates main contrib non-free non-free-firmware" >> /etc/apt/sources.list
+
    apt update
    apt install <any_essential_package_missing>
+6. It is possible the minimalist bootstrap does not contain apt or wget, which makes it dificult to make any other installation. A walk around for this is to download wget and apt outside the chroot jail and then copy the dpkg files to the chroot jail which we can install with dpkg. The problem with this approach is there tends to be more packages or libraries that the installed dpkg depend on, so we end up having to download those outside of our chroot jail and copy then into our chroot to get this working (we just found out why package managers are so great :)). Once we sort the dependencies for apt and wget installation of other packages becomes easier.
+   ```
+   # registry to find debian packages directly to download
+   https://deb.debian.org/debian/pool/main/
+   # for example if we want to install version 2.6.1 of apt we can find a link to it in the provided debian package registry
+   wget http://deb.debian.org/debian/pool/main/a/apt/apt_2.6.1_amd64.deb
+   dpkg -i apt_2.6.1_amd64.deb
+7. We now have all the initial setup done, now we can install wine so we can be able to run Windows applications in amd64. For this, we follow the step outlines on [wine-hq](https://gitlab.winehq.org/wine/wine/-/wikis/Debian-Ubuntu). Once this is done we should confirm we have both wine 32 bit and wine 64 bit so we can run both 32-bit and 64 bit applications. If wine64 does not get installed we would have to install it as a seperate step with `apt install wine64`.
