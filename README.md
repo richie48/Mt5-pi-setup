@@ -86,7 +86,7 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
     ```
     # Sometimes wine apps need access to /tmp/.X11-unix and .Xauthority.
     sudo mount --bind /tmp/.X11-unix /opt/amd64-bookworm/tmp/.X11-unix
-    sudo cp /home/youruser/.Xauthority /opt/amd64-bookworm/root/
+    sudo cp /home/<your_user>/.Xauthority /opt/amd64-bookworm/root/
 
     # test installation in the chroot jail
     export XAUTHORITY=/root/.Xauthority
