@@ -60,9 +60,9 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
     sudo apt update
     sudo apt install lxde-core
     ```
-    Then we replace the content in the VNC startup file to the content provided below.
+    Then we replace the content in the VNC startup file with the content provided below.
    ```
-   # Open the start file in an IDE to edit content and after add executable permission
+   # Open the start file in an IDE to edit the content, and after add executable permission
    vi ~/.vnc/xstartup
    chmod +x ~/.vnc/xstartup
    
@@ -71,20 +71,20 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
    xrdb $HOME/.Xresources
    startlxde &
    ```
-   We can restart our vnc server and reconnect to it on vnc viewer now. We should now see a desktop displayed
+   We can restart our VNC server and reconnect to it on vnc viewer now. We should now see a desktop displayed
    ```
    vncserver -kill :1
    vncserver :1
-   # Confirm server is running and the display
+   # Confirm the server is running and the display
    ps aux | grep vnc
-11. At this point although we can see a desktop display our chroot has no access to the X server. Below command allows any user include users in chroot to be able to connect to the X server
+10. At this point, although we can see a desktop display, our chroot has no access to the X server. Below command allows any user include users in chroot to be able to connect to the X server
     ```
     export DISPLAY=:1
     xhost +local:
     ```
-    Now from within our chroot jail we `export DISPLAY=:1` to connect to our X server. We should also install x11-apps and test our GUI shows up in vnc viewer. For this, we would be running xclock, which should render a GUI in our vnc viewer if the setup is correct 
+    Now, from within our chroot jail we `export DISPLAY=:1` to connect to our X server. We should also install x11-apps and test our GUI shows up in vnc viewer. For this, we would be running xclock, which should render a GUI in our vnc viewer if the setup is correct 
     ```
-    # sometimes wine apps need access to /tmp/.X11-unix and .Xauthority.
+    # Sometimes wine apps need access to /tmp/.X11-unix and .Xauthority.
     sudo mount --bind /tmp/.X11-unix /opt/amd64-bookworm/tmp/.X11-unix
     sudo cp /home/youruser/.Xauthority /opt/amd64-bookworm/root/
     export XAUTHORITY=/root/.Xauthority
@@ -93,7 +93,7 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
     apt install x11-apps
     xclock
     ```
-12. Now we can successfully run the setup of MT5. We first try to get the [mt5 installation for linux](https://www.metatrader5.com/en/download).
+11. Now we can successfully run the setup of MT5. We first try to get the [mt5 installation for linux](https://www.metatrader5.com/en/download).
     ```
     wget https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5ubuntu.sh
     ```
@@ -103,12 +103,12 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
     WINEDLLPATH=/opt/wine-stable/lib64/wine/x86_64-unix WINEPREFIX=~/.mt5 wine64 mt5setup.exe
     ```
     we would need to do some button clicking on the GUI now displayed in VNC viewer to complete the installation. Once done, we should find our MT5 application installed at `/opt/amd64-bookworm/.mt5/drive_c/Program\ Files/`
-13. We no longer need to interact with our GUI and therefore can resolve to using a virtual display when running MT5 forward. We can install a lightweight display server in our chroot jail, which we would be runnning before launching MT5.
+12. We no longer need to interact with our GUI and therefore can resolve to using a virtual display when running MT5 forward. We can install a lightweight display server in our chroot jail, which we would be runnning before launching MT5.
     ```
     sudo apt install xvfb
     Xvfb :1 -screen 0 1024x768x24 &
     export DISPLAY=:1
-14. Now we have MT5 installed and running, we want to be able to interact with MT5 from within a Python script. For this, we would need [python_metatrader5](https://www.mql5.com/en/docs/python_metatrader5), which serves as a remote control for MT5. This does not run outside of Windows. To work around this, we would be installing Python for Windows within `Wine Shell`, then we would be able to install python_metatrader5 in the shell. I noticed that all the python3.13 installers were 32-bit, which made it difficult to install my 64-bit Python executable. The alternative was to install [Windows embeddable package (64-bit)](https://www.python.org/ftp/python/3.13.5/python-3.13.5-embed-amd64.zip).
+13. Now we have MT5 installed and running, we want to be able to interact with MT5 from within a Python script. For this, we would need [python_metatrader5](https://www.mql5.com/en/docs/python_metatrader5), which serves as a remote control for MT5. This does not run outside of Windows. To work around this, we would be installing Python for Windows within `Wine Shell`, then we would be able to install python_metatrader5 in the shell. I noticed that all the python3.13 installers were 32-bit, which made it difficult to install my 64-bit Python executable. The alternative was to install [Windows embeddable package (64-bit)](https://www.python.org/ftp/python/3.13.5/python-3.13.5-embed-amd64.zip).
     ```
     mkdir -p ~/.mt5/drive_c/python313-embed
     unzip python-3.13.5-embed-amd64.zip -d ~/.mt5/drive_c/python313-embed
@@ -118,12 +118,19 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
     WINEDLLPATH=/opt/wine-stable/lib64/wine/x86_64-unix WINEPREFIX=~/.mt5 wine64 cmd
     C:\python313-embed\python.exe --version
     # We should see "Python 3.13.0"
-15. Because this is a lightweight version of Python, we do not get pip as part of the embedded Python package. We would have to install pip in another step. We need this so we can install all the packages needed to remotely control MT5. To install pip, download [get-pip.py](https://bootstrap.pypa.io/get-pip.py) in my chroot jail. Then copy into the .mt5 prefix, so it can be accessed from within the Wine shell. We should also uncomment `import site` from `python312._pth` in the `~/.mt5/drive_c/python313-embed` folder. Now we can run the command to install pip in Wine shell
+14. Because this is a lightweight version of Python, we do not get pip as part of the embedded Python package. We would have to install pip in another step. We need this so we can install all the packages needed to remotely control MT5. To install pip, download [get-pip.py](https://bootstrap.pypa.io/get-pip.py) in my chroot jail. Then copy into the .mt5 prefix, so it can be accessed from within the Wine shell. We should also uncomment `import site` from `python312._pth` in the `~/.mt5/drive_c/python313-embed` folder. Now we can run the command to install pip in Wine shell
     ```
     C:\python313-embed\python.exe C:\python313-embed\get-pip.py
     # We can confirm pip is installed
     C:\python3.13-embed\python.exe -m pip
     ```
+15. We can now install MT5 Python packages needed to control the MT5 task remotely in Wine.
+    ```
+    pip install MetaTrader5
+    pip install pymt5linux
+    ```
+16. The goal is to be able to control MT5 remotely from outside the chroot jail. Now that we have the above packages installed, we can run mt5 server in Wine. Now it should be reachable from our Linux script outside the chroot jail once we install pymt5linux on the Linux side. The package attempts to forward requests from Linux to our Windows emulated shell, where it would be executed (this step has not been confirmed yet!)
+
 
 ## Alternative solution
 * A more stable alternative solution for setting up MT5 for Raspberry Pi is to create a Windows virtual machine on the pi, and then install mt5 on this virtual machine. Then we have to trigger actions on mt5 in the present setup from a task running on the Pi to the task running on the Windows virtual machine by creating an application programming interface(API). Our Windows virtual machine is treated as a separate kernel, and therefore, we do not have any direct way to trigger a task from the physical machine kernel to the virtual machine kernel. To do this, we would need an operating system emulator like qemu, a VM manager like virt-manager etc. We would also need to download a Windows ISO, which we would install into a setup and booted Windows VM created by qemu in this case. Although more stable, this approach required more effort than the present setup, since mt5 usage is light, we don't expect to run into bottlenecks with the picked setup.
