@@ -122,7 +122,7 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
     ```
     C:\python313-embed\python.exe C:\python313-embed\get-pip.py
     # We can confirm pip is installed
-    C:\python3.13-embed\python.exe -m pip
+    C:\python313-embed\python.exe -m pip
     ```
 15. We can now install MT5 Python packages needed to control the MT5 task remotely in Wine.
     ```
