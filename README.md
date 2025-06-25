@@ -1,4 +1,4 @@
-## mt5-pi-setup
+## Mt5-pi-setup
 MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it to run on a Raspberry Pi, some steps were taken as a hack of this process.   
 
 1. The first step is to install the required tools for setting up chroot. `Debootstrap` is a tool used to bootstrap a basic Debian or Ubuntu system into a directory, without needing a Debian installation medium. `qemu-user-static` allows running executables compiled for different CPU architectures on a host system, even if the host and target architectures are different. It does this by translating the instruction set of a target architecture to the host architecture, providing user-mode emulation. `binfmt-support` provides tools for managing and extending the kernel's ability to handle different binary file formats, allowing the system to recognise and execute files based on their format
@@ -32,7 +32,7 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
    # For example, if we want to install version 2.6.1 of apt we can find a link to it in the provided Debian package registry
    wget http://deb.debian.org/debian/pool/main/a/apt/apt_2.6.1_amd64.deb
    dpkg -i apt_2.6.1_amd64.deb
-7. We now have all the initial setup done, now we can install wine so we can be able to run Windows applications in AMD64. For this, we follow the step outlines on [wine-hq](https://gitlab.winehq.org/wine/wine/-/wikis/Debian-Ubuntu). Once this is done, we should confirm we have both Wine 32-bit and Wine 64-bit so we can run both 32-bit and 64-bit applications. If wine64 does not get installed, we would have to install it as a separate step with `apt install wine64`. Ideally, we should install Wine version 9.0.0, which is a more recent stable version of , Wine and it patches a missing [library](https://github.com/ptitSeb/box64/issues/1555). If the version installed from winhq.org is older than this version, we should look to upgrade to version 9.0.0. The first step is to remove all wine packages so we do not have conflicting dependencies
+7. We now have all the initial setup done, now we can install wine so we can be able to run Windows applications in AMD64. For this, we follow the step outlines on [wine-hq](https://gitlab.winehq.org/wine/wine/-/wikis/Debian-Ubuntu). Once this is done, we should confirm we have both Wine 32-bit and Wine 64-bit so we can run both 32-bit and 64-bit applications. If wine64 does not get installed, we would have to install it as a separate step with `apt install wine64`. Ideally, we should install Wine version 10.0.0, which is a more recent stable version of Wine, and it patches a missing [library](https://github.com/ptitSeb/box64/issues/1555) amongst fixing other [issues](https://forum.winehq.org/viewtopic.php?t=39119). If the version installed from winhq.org is older than this version, we should look to upgrade to version 9.0.0. The first step is to remove all wine packages so we do not have conflicting dependencies
    ```
    apt remove --purge 'wine*' 'libwine*'
    apt autoremove --purge
@@ -41,7 +41,7 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
    Now we are ready to install our new wine version. Once done, verify installation.
    ```
    apt update
-   apt install --install-recommends winehq-stable=9.0.0.0~bookworm-1 wine-stable=9.0.0.0~bookworm-1 wine-stable-amd64=9.0.0.0~bookworm-1 wine-stable-i386=9.0.0.0~bookworm-1
+   apt install --install-recommends winehq-stable=10.0.0.0~bookworm-1 wine-stable=10.0.0.0~bookworm-1 wine-stable-amd64=10.0.0.0~bookworm-1 wine-stable-i386=10.0.0.0~bookworm-1
    wine --version
    wine64 --version
 8. Now that we have Wine installed, we can run Windows 64-bit applications on our Pi. To install MT5, we would need to have some form of display, as we would have to click some buttons when trying to install. It was not designed to run headless. To do this, we would be trying to remotely access graphic feeds over SSH from a machine with GUI support. We make use of VNC for this.
@@ -87,9 +87,9 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
     # Sometimes wine apps need access to /tmp/.X11-unix and .Xauthority.
     sudo mount --bind /tmp/.X11-unix /opt/amd64-bookworm/tmp/.X11-unix
     sudo cp /home/youruser/.Xauthority /opt/amd64-bookworm/root/
-    export XAUTHORITY=/root/.Xauthority
 
-    # test installation
+    # test installation in the chroot jail
+    export XAUTHORITY=/root/.Xauthority
     apt install x11-apps
     xclock
     ```
