@@ -41,7 +41,7 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
    Now we are ready to install our new wine version. Once done, verify installation.
    ```
    apt update
-   apt install --install-recommends winehq-stable=10.0.0.0~bookworm-1 wine-stable=10.0.0.0~bookworm-1 wine-stable-amd64=10.0.0.0~bookworm-1 wine-stable-i386=10.0.0.0~bookworm-1
+   apt install --install-recommends winehq-stable=10.0.0.0~bookworm-1 wine-stable=10.0.0.0~bookworm-1 wine-stable-amd64=10.0.0.0~bookworm-1 wine-stable-i386=10.0.0.0~bookworm-1 winetricks
    wine --version
    wine64 --version
 8. Now that we have Wine installed, we can run Windows 64-bit applications on our Pi. To install MT5, we would need to have some form of display, as we would have to click some buttons when trying to install. It was not designed to run headless. To do this, we would be trying to remotely access graphic feeds over SSH from a machine with GUI support. We make use of VNC for this.
