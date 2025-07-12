@@ -163,11 +163,20 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
   ```
   # Boot Windows VM
   bvm/bvm boot-nodisplay ~/win11
-  # check that the port 17001 is mapped on the PI OS
+  # check that port 17001 is mapped on the PI OS
   netstat -tuln | grep 17001
   ```
-  We can now run the python server on window on the same port 17001 to listen to RPC and act on them on metatraders5.
-  ```
+  We can now run the Python server on Windows on the same port 17001 to listen to RPC and act on them on metatraders5.
+  ``` here
   python -m pymt5linux --host 0.0.0.0 --port 17001 C:\Users\Win11ARM\AppData\Local\Programs\Python\Python313\python.exe
+* Now that we have the Python server running on the Windows VM, all that's left is to install mt5linux on the host(the PI). We would be making use of mt5linux_updated package here, this is cause we are unable to install pymt5linux on the host, since we use Python 3.12 as the stable version for all tasks running on the host. Python 3.13 is the minimum version for pymt5linux, so the workaround is to install mt5linux_updated, and since we only need the parts of the source code that involve making the remote procedure call only and not the server, this should work fine for our case.
+  ```
+  python3.12 -m pip install mt5linux_updated
+  ```
+* Now we can use MT5 from our Python code in the PI kernel and remotely control MetaTrader 5 on the Windows VM kernel to perform some action as long as we set the right port and host.
+  ```
+  from mt5linux_updated import MetaTrader5
+  mt5_client = MetaTrader5(host="0.0.0.0", port=17001)
+  ```
   
   
