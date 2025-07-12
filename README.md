@@ -159,14 +159,14 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
   # Although not necessary, we can also reduce graphics as we try to keep things as lightweight as possible for speed
   reduce_graphics=true
   ```
-Now we should see 127.0.0.1:17001 as a listening port on our Pi terminal forwarding to port 17001 on the guest Windows. We can confirm the port is listening when we boot the Windows VM
+  Now we should see 127.0.0.1:17001 as a listening port on our Pi terminal forwarding to port 17001 on the guest Windows. We can confirm the port is listening when we boot the Windows VM
   ```
   # Boot Windows VM
   bvm/bvm boot-nodisplay ~/win11
   # check that the port 17001 is mapped on the PI OS
   netstat -tuln | grep 17001
   ```
-We can now run the python server on window on the same port 17001 to listen to RPC and act on them on metatraders5.
+  We can now run the python server on window on the same port 17001 to listen to RPC and act on them on metatraders5.
   ```
   python -m pymt5linux --host 0.0.0.0 --port 17001 C:\Users\Win11ARM\AppData\Local\Programs\Python\Python313\python.exe
   
