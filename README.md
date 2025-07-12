@@ -137,7 +137,7 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
 
 ## Alternative solution
 * A more stable alternative solution for setting up MT5 for Raspberry Pi is to create a Windows virtual machine on the Pi and then install MT5 on this virtual machine. Then we have to trigger actions on MT5 in the present setup from a task running on the Pi OS to the task running on the Windows virtual machine by creating a remote procedure call(RPC). Our Windows virtual machine is treated as a separate kernel, and therefore, we do not have any direct way to trigger a task from the physical machine kernel to the virtual machine kernel. To do this, we would need an operating system emulator like QEMU, a VM manager like virt-manager, etc. We would also need to download a Windows ISO, and setup the VM using the VM manager installed. For this, it's better to do this over a GUI than in a CLI, progress updates are not as visible on a CLI. Therefore, I will be using VNC viewer to remotely access graphic feeds and provide GUI interactions. Although more stable, this approach requires more resources than the previous setup since we would be building an entire machine just to run a lightweight MT5. The tradeoff becomes excessive resource usage and stability, or limited resource usage and potential chance of being unstable or constantly crashing. I had initially planned to use wine since my MT5 usage is very light, but found it to be **extremely** unstable.
-* A quick and automated way to get a Windows VM is to use [BVM](https://github.com/Botspot/bvm), follow the steps provided to set up a Windows VM. Then opt for the option to use the VM headless and connect to it using RDP for performance and feature enhancement. To connect via RDP, we would need to have a desktop environment running and a display exported on the shell we plan to connect from (Steps 8-10 above should set this up)
+* A quick and automated way to get a Windows VM is to use [BVM](https://github.com/Botspot/bvm), follow the steps provided to set up a Windows VM. Then opt for the option to use the VM headless and connect to it using RDP for performance and feature enhancement. To connect via RDP, we would need to have a desktop environment running and a display exported on the shell we plan to connect from **(Steps 8-10 above should set this up)**
   ```
   vncserver :1
   xhost +local:
@@ -145,3 +145,29 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
   ```
 * Once connected, we can install the Windows version of [metatraders5](https://download.mql5.com/cdn/web/metaquotes.ltd/mt5/mt5setup.exe?utm_source=www.metatrader5.com&utm_campaign=download). Metatraders5 only works on x64, but Windows 11 ARM has built-in emulation, which will work to translate instructions for ARM. This package has to be installed visually as it directly relies on some graphic features.
 * Next, we have to install [Python 3.13](https://www.python.org/downloads/release/python-3130/), which is what we would use to set up our server from our Windows VM. We would be installing the x64 installer over the ARM installer. This is because we would need to have the Metatrader5 pypi package installed after installing Python, as this will be a form of remote control for MT5. This package only runs on x64 Windows and therefore will not get installed if using the ARM version of Python over the x64 version.
+* Now that we have Python 3.13 installed, we can install the required PyPI packages to complete Python installation on the Windows VM. 
+  ```
+  python -m pip install MetaTrader5
+  python -m pip install pymt5linux
+  ```
+* We would be making use of pymt5linux to set up a server that will receive remote procedure call requests and act on them in the Windows VM. We should bind the server to the host 0.0.0.0 to allow the server to be accessible from any network interface, including from the host, provided we have set up port forwarding from the host OS to the guest OS with QEMU. To setup port forwarding we would be updating the config in bvm for the created virtual machine. In my case the virtual machine folder is ~/win11 therefore we make update with `vim ~/win11/bvm-config`
+  ```
+  # Add a port for the python server
+  mt5_port=17001
+  # Update the port forwarding settings to include our new port, forwarding requests from our localhost
+  network_flags=(-netdev user,id=nic,hostfwd=tcp:127.0.0.1:${mt5_port}-:17001,hostfwd=tcp:127.0.0.1:${rdp_port}-:3389 -device virtio-net-pci,netdev=nic)
+  # Although not necessary, we can also reduce graphics as we try to keep things as lightweight as possible for speed
+  reduce_graphics=true
+  ```
+Now we should see 127.0.0.1:17001 as a listening port on our Pi terminal forwarding to port 17001 on the guest Windows. We can confirm the port is listening when we boot the Windows VM
+  ```
+  # Boot Windows VM
+  bvm/bvm boot-nodisplay ~/win11
+  # check that the port 17001 is mapped on the PI OS
+  netstat -tuln | grep 17001
+  ```
+We can now run the python server on window on the same port 17001 to listen to RPC and act on them on metatraders5.
+  ```
+  python -m pymt5linux --host 0.0.0.0 --port 17001 C:\Users\Win11ARM\AppData\Local\Programs\Python\Python313\python.exe
+  
+  
