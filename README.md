@@ -150,9 +150,9 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
   python -m pip install MetaTrader5
   python -m pip install pymt5linux
   ```
-* We would be making use of pymt5linux to set up a server that will receive remote procedure call requests and act on them in the Windows VM. We should bind the server to the host 0.0.0.0 to allow the server to be accessible from any network interface, including from the host, provided we have set up port forwarding from the host OS to the guest OS with QEMU. To setup port forwarding we would be updating the config in bvm for the created virtual machine. In my case the virtual machine folder is ~/win11 therefore we make update with `vim ~/win11/bvm-config`
+* We would be making use of [pymt5linux](https://pypi.org/project/pymt5linux/) to set up a server that will receive remote procedure call requests and act on them in the Windows VM. pymt5linux does not assume we would be using wine as in mt5linux; instead, it just tries to locate the necessary command to run. In this case we would not be using wine and therefore are using this package as a direct RPC tool. We should bind the server to the host 0.0.0.0 to allow the server to be accessible from any network interface, including from the host, provided we have set up port forwarding from the host OS to the guest OS with QEMU. To set up port forwarding, we would be updating the config in bvm for the created virtual machine. In my case the virtual machine folder is ~/win11 therefore we make update with `vim ~/win11/bvm-config`
   ```
-  # Add a port for the python server
+  # Add a port for the Python server
   mt5_port=17001
   # Update the port forwarding settings to include our new port, forwarding requests from our localhost
   network_flags=(-netdev user,id=nic,hostfwd=tcp:127.0.0.1:${mt5_port}-:17001,hostfwd=tcp:127.0.0.1:${rdp_port}-:3389 -device virtio-net-pci,netdev=nic)
@@ -169,7 +169,7 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
   We can now run the Python server on Windows on the same port 17001 to listen to RPC and act on them on metatraders5.
   ``` here
   python -m pymt5linux --host 0.0.0.0 --port 17001 C:\Users\Win11ARM\AppData\Local\Programs\Python\Python313\python.exe
-* Now that we have the Python server running on the Windows VM, all that's left is to install mt5linux on the host(the PI). We would be making use of mt5linux_updated package here, this is cause we are unable to install pymt5linux on the host, since we use Python 3.12 as the stable version for all tasks running on the host. Python 3.13 is the minimum version for pymt5linux, so the workaround is to install mt5linux_updated, and since we only need the parts of the source code that involve making the remote procedure call only and not the server, this should work fine for our case.
+* Now that we have the Python server running on the Windows VM, all that's left is to install mt5linux on the host(the PI). We would be making use of [mt5linux_updated package]( here, this is cause we are unable to install pymt5linux on the host, since we use Python 3.12 as the stable version for all tasks running on the host. Python 3.13 is the minimum version for pymt5linux, so the workaround is to install mt5linux_updated, and since we only need the parts of the source code that involve making the remote procedure call only and not the server, this should work fine for our case.
   ```
   python3.12 -m pip install mt5linux_updated
   ```
@@ -178,5 +178,6 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
   from mt5linux_updated import MetaTrader5
   mt5_client = MetaTrader5(host="0.0.0.0", port=17001)
   ```
+
   
   
