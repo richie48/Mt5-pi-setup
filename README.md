@@ -178,6 +178,15 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
   from mt5linux_updated import MetaTrader5
   mt5_client = MetaTrader5(host="0.0.0.0", port=17001)
   ```
+* Now that we are sure the Python server is acting as expected we can add some more automation on the Windows VM. We want to automatically launch the Python server when we start our Windows VM. To do this we would be using a batch file. In the Documents directory add a file `python_server.bat`. Content below
+  ```
+  @echo off
+  python -m pymt5linux --host 0.0.0.0 --port 17001 C:\Users\Win11ARM\AppData\Local\Programs\Python\Python313\python.exe
+  ```
+Open the batch file to test it's working as expected, in this case it should start the Python server.
+* We would be running the batch file as a scheduled task. First open task scheduler with `Win + R`, type `taskschd.msc` and press `enter`. We can now create a new task here, click `Action > Create Task`. In general setting, for the name we would use `Start Python server`, check **"Run whether user is logged on or not"**, check **"Run with highest priviledges"** and make sure to choose the correct account. In `Triggers > New`, select to begin task **At startup**. In `Actions > New`, select `Start a program` and locate our created batch file `python_server.bat`. In conditons, uncheck **"Start the task only if the computer is on AC power"**. And lastly under settings, check **"Allow task to run on demand", "If the task fails restart every minute, attempt to restart 100+ times", "if task does not end when requested force it to stop"**, . If task is already running do not start new instance. Now click OK, you will be prompted to enter your windows password to authorize running when not logged in. Reboot to confirm it all works! check that a remote procecure call from the pi terminal results in a connection once Windows VM is booted without further configuration!
+
+  
 
   
   
