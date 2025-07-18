@@ -198,6 +198,9 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
       # In another terminal, we would be connecting to the Windows VM via RDP
       tmux new-session -s bvm-connect
       # This will open up the tmux terminal where we would enter the command we want to persist(use full path as opposed to the below command)
+      vncserver :1
+      xhost +local:
+      export DISPLAY=:1
       bvm/bvm connect ~/win11
       # Then we can detach from the session by pressing CTRL + B, then D
    ```
