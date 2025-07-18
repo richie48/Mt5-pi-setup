@@ -167,8 +167,9 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
   netstat -tuln | grep 17001
   ```
   We can now run the Python server on Windows on the same port 17001 to listen to RPC and act on them on metatraders5.
-  ``` here
+  ``` 
   python -m pymt5linux --host 0.0.0.0 --port 17001 C:\Users\Win11ARM\AppData\Local\Programs\Python\Python313\python.exe
+  ```
 7. Now that we have the Python server running on the Windows VM, all that's left is to install mt5linux on the host(the PI). We would be making use of [mt5linux_updated package](https://pypi.org/project/mt5linux-updated/), this is cause we are unable to install pymt5linux on the host, since we use Python 3.12 as the stable version for all tasks running on the host. Python 3.13 is the minimum version for pymt5linux, so the workaround is to install mt5linux_updated, and since we only need the parts of the source code that involve making the remote procedure call only and not the server, this should work fine for our case.
    ```
    python3.12 -m pip install mt5linux_updated
@@ -183,7 +184,7 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
    @echo off
    python -m pymt5linux --host 0.0.0.0 --port 17001 C:\Users\Win11ARM\AppData\Local\Programs\Python\Python313\python.exe
    ```
-  Open the batch file to test it's working as expected, in this case it should start the Python server.
+   Open the batch file to test it's working as expected, in this case it should start the Python server.
 10. We would be running the batch file as a scheduled task. First, open Task Scheduler with `Win + R`, type `taskschd.msc` and press `enter`. We can now create a new task here, click `Action > Create Task`. In general setting, for the name we would use `Start Python server`, check **"Run whether user is logged on or not"**, check **"Run with highest privileges "** and make sure to choose the correct account. In `Triggers > New`, select to begin task **At startup**. In `Actions > New`, select `Start a program` and locate our created batch file `python_server.bat`. In conditions, uncheck **"Start the task only if the computer is on AC power"**. And lastly under settings, check **"Allow task to run on demand", "If the task fails, restart every minute, attempt to restart 100+ times", "if task does not end when requested, force it to stop"**. If the task is already running, do not start a new instance. Now click OK, you will be prompted to enter your windows password to authorise running when not logged in. Reboot to confirm it all works! Check that a remote procedure call from the Pi terminal results in a connection once Windows VM is booted without further configuration!
 11. The next step is to find a way to persist our Windows VM. For this, I will be using tmux. Tmux helps to create a long running session, which is exactly what we need in this case. We do not our Windows VM to get stopped when we log out. Tmux will keep the Window's VM terminal running unless manually killed, the server reboot(which we won't do unless for maintenance), or the tmux server crashes(rare). Sessions do not automatically close; they can run for weeks, months, etc. This makes it a perfect candidate for this use case.
    ```
