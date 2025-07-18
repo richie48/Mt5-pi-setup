@@ -145,7 +145,7 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
   ```
 * Once connected, we can install the Windows version of [metatraders5](https://download.mql5.com/cdn/web/metaquotes.ltd/mt5/mt5setup.exe?utm_source=www.metatrader5.com&utm_campaign=download). Metatraders5 only works on x64, but Windows 11 ARM has built-in emulation, which will work to translate instructions for ARM. This package has to be installed visually as it directly relies on some graphic features.
 * Next, we have to install [Python 3.13](https://www.python.org/downloads/release/python-3130/), which is what we would use to set up our server from our Windows VM. We would be installing the x64 installer over the ARM installer. This is because we would need to have the Metatrader5 pypi package installed after installing Python, as this will be a form of remote control for MT5. This package only runs on x64 Windows and therefore will not get installed if using the ARM version of Python over the x64 version.
-* Now that we have Python 3.13 installed, we can install the required PyPI packages to complete Python installation on the Windows VM. 
+* Now that we have Python 3.13 installed, we can install the required PyPI packages to complete the Python installation on the Windows VM. 
   ```
   python -m pip install MetaTrader5
   python -m pip install pymt5linux
@@ -173,18 +173,40 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
   ```
   python3.12 -m pip install mt5linux_updated
   ```
-* Now we can use MT5 from our Python code in the PI kernel and remotely control MetaTrader 5 on the Windows VM kernel to perform some action as long as we set the right port and host.
+* Now we can use MT5 from our Python code in the PI kernel and remotely control MetaTrader 5 on the Windows VM kernel to perform some action, as long as we set the right port and host.
   ```
   from mt5linux_updated import MetaTrader5
   mt5_client = MetaTrader5(host="0.0.0.0", port=17001)
   ```
-* Now that we are sure the Python server is acting as expected we can add some more automation on the Windows VM. We want to automatically launch the Python server when we start our Windows VM. To do this we would be using a batch file. In the Documents directory add a file `python_server.bat`. Content below
+* Now that we are sure the Python server is acting as expected, we can add some more automation on the Windows VM. We want to automatically launch the Python server when we start our Windows VM. To do this, we would be using a batch file. In the Documents directory, add a file `python_server.bat`. Content below
   ```
   @echo off
   python -m pymt5linux --host 0.0.0.0 --port 17001 C:\Users\Win11ARM\AppData\Local\Programs\Python\Python313\python.exe
   ```
   Open the batch file to test it's working as expected, in this case it should start the Python server.
-* We would be running the batch file as a scheduled task. First open task scheduler with `Win + R`, type `taskschd.msc` and press `enter`. We can now create a new task here, click `Action > Create Task`. In general setting, for the name we would use `Start Python server`, check **"Run whether user is logged on or not"**, check **"Run with highest priviledges"** and make sure to choose the correct account. In `Triggers > New`, select to begin task **At startup**. In `Actions > New`, select `Start a program` and locate our created batch file `python_server.bat`. In conditons, uncheck **"Start the task only if the computer is on AC power"**. And lastly under settings, check **"Allow task to run on demand", "If the task fails restart every minute, attempt to restart 100+ times", "if task does not end when requested force it to stop"**, . If task is already running do not start new instance. Now click OK, you will be prompted to enter your windows password to authorize running when not logged in. Reboot to confirm it all works! check that a remote procecure call from the pi terminal results in a connection once Windows VM is booted without further configuration!
+* We would be running the batch file as a scheduled task. First, open Task Scheduler with `Win + R`, type `taskschd.msc` and press `enter`. We can now create a new task here, click `Action > Create Task`. In general setting, for the name we would use `Start Python server`, check **"Run whether user is logged on or not"**, check **"Run with highest privileges "** and make sure to choose the correct account. In `Triggers > New`, select to begin task **At startup**. In `Actions > New`, select `Start a program` and locate our created batch file `python_server.bat`. In conditions, uncheck **"Start the task only if the computer is on AC power"**. And lastly under settings, check **"Allow task to run on demand", "If the task fails, restart every minute, attempt to restart 100+ times", "if task does not end when requested, force it to stop"**. If the task is already running, do not start a new instance. Now click OK, you will be prompted to enter your windows password to authorise running when not logged in. Reboot to confirm it all works! Check that a remote procedure call from the Pi terminal results in a connection once Windows VM is booted without further configuration!
+* The next step is to find a way to persist our Windows VM. For this, I will be using tmux. Tmux helps to create a long running session, which is exactly what we need in this case. We do not our Windows VM to get stopped when we log out. Tmux will keep the Window's VM terminal running unless manually killed, the server reboot(which we won't do unless for maintenance), or the tmux server crashes(rare). Sessions do not automatically close; they can run for weeks, months, etc. This makes it a perfect candidate for this use case.
+```
+# In one terminal, we would be creating the Windows VM in headless mode
+tmux new-session -s bvm-boot
+# This will open up the tmux terminal where we would enter the command we want to persist(use full path as opposed to the below command)
+bvm/bvm boot-nodisplay ~/win11"
+# Then we can detach from the session by pressing CTRL + B, then D
+```
+```
+# In another terminal, we would be connecting to the Windows VM via RDP
+tmux new-session -s bvm-connect
+# This will open up the tmux terminal where we would enter the command we want to persist(use full path as opposed to the below command)
+bvm/bvm connect ~/win11
+# Then we can detach from the session by pressing CTRL + B, then D
+```
+* Now that all the parts are working, we should make sure we never run into the possibility of our Windows VM sleeping while we expect it to carry out some task at a later time. We want the Windows VM to always be up, just like the Raspberry Pi OS, as this is a discouraged behaviour on a server with long-running processes. To do this, go to `Control Panel > System and Security > Power Options > Change Plan Settings`. Set 'Turn off display' to 'Never' and in advanced settings, set 'Sleep' to 'Never', and turn off 'Hard disk' to 'Never'.
+
+###Future Work
+- We now have our Windows VM and Python server on Windows fairly autonomous (An upgrade might be to use systemd so we never have to recreate the sessions on reboot, but were constantly running into issues.
+- We should also auto-start all MT5 instances on the Windows GUI as it upfronts the cost of mt5.initialize(...) on Python
+
+
 
   
 
