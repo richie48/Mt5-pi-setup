@@ -207,8 +207,8 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
 12. Now that all the parts are working, we should make sure we never run into the possibility of our Windows VM sleeping while we expect it to carry out some task at a later time. We want the Windows VM to always be up, just like the Raspberry Pi OS, as this is a discouraged behaviour on a server with long-running processes. To do this, go to `Control Panel > System and Security > Power Options > Change Plan Settings`. Set 'Turn off display' to 'Never' and in advanced settings, set 'Sleep' to 'Never', and turn off 'Hard disk' to 'Never'.
 
 ### Future Work
-- We now have our Windows VM and Python server on Windows fairly autonomous (An upgrade might be to use systemd so we never have to recreate the sessions on reboot, but were constantly running into issues.
-- We should also auto-start all MT5 instances on the Windows GUI as it upfronts the cost of mt5.initialize(...) on Python
+- We now have our Windows VM and Python server on Windows fairly autonomous. An upgrade might be to use systemd so we never have to recreate the sessions on reboot, but constantly ran into issues during setup.
+- We should also auto-start all MT5 instances on the Windows GUI as it upfronts the cost of mt5.initialize(...) on Python.
 
 
 
