@@ -191,7 +191,7 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
       # In one terminal, we would be creating the Windows VM in headless mode
       tmux new-session -s bvm-boot
       # This will open up the tmux terminal where we would enter the command we want to persist(use full path as opposed to the below command)
-      bvm/bvm boot-nodisplay ~/win11"
+      ~/programs/bvm/bvm boot-nodisplay ~/win11
       # Then we can detach from the session by pressing CTRL + B, then D
    ```
    ```
@@ -199,9 +199,9 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
       tmux new-session -s bvm-connect
       # This will open up the tmux terminal where we would enter the command we want to persist(use full path as opposed to the below command)
       vncserver :1
-      xhost +local:
       export DISPLAY=:1
-      bvm/bvm connect ~/win11
+      xhost +local:
+      ~/programs/bvm/bvm connect ~/win11
       # Then we can detach from the session by pressing CTRL + B, then D
    ```
 12. Now that all the parts are working, we should make sure we never run into the possibility of our Windows VM sleeping while we expect it to carry out some task at a later time. We want the Windows VM to always be up, just like the Raspberry Pi OS, as this is a discouraged behaviour on a server with long-running processes. To do this, go to `Control Panel > System and Security > Power Options > Change Plan Settings`. Set 'Turn off display' to 'Never' and in advanced settings, set 'Sleep' to 'Never', and turn off 'Hard disk' to 'Never'.
