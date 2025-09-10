@@ -204,7 +204,7 @@ MetaTrader5 is designed to run only on Windows 64-bit machines. In order for it 
       ~/programs/bvm/bvm connect ~/win11
       # Then we can detach from the session by pressing CTRL + B, then D
    ```
-12. Now that all the parts are working, we should make sure we never run into the possibility of our Windows VM sleeping while we expect it to carry out some task at a later time. We want the Windows VM to always be up, just like the Raspberry Pi OS, as this is a discouraged behaviour on a server with long-running processes. To do this, go to `Control Panel > System and Security > Power Options > Change Plan Settings`. Set 'Turn off display' to 'Never' and in advanced settings, set 'Sleep' to 'Never', and turn off 'Hard disk' to 'Never'.
+12. Now that all the parts are working, we should make sure we never run into the possibility of our Windows VM sleeping while we expect it to carry out some task at a later time. We want the Windows VM to always be up, just like the Raspberry Pi OS, as this is a discouraged behaviour on a server with long-running processes. To do this, go to `Control Panel > System and Security > Power Options > Change Plan Settings`. Set 'Turn off display' to 'Never' and in advanced settings, set 'Sleep' to 'Never', and turn off 'Hard disk' to 'Never'. **Can also turn on metered connections so updates are limited to security/critical ones, which would prevent the Windows VM from shutting down every second Tuesday when regular cumulative updates are released.**
 
 ### Future Work
 - We now have our Windows VM and Python server on Windows fairly autonomous. An upgrade might be to use systemd and tmux so we never have to recreate the sessions on reboot, but constantly ran into issues during setup.
